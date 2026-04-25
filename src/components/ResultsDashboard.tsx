@@ -107,9 +107,11 @@ export const ResultsDashboard = ({ plan, hypothesis, onReset }: ResultsDashboard
               </Badge>
             </div>
 
-            <p className="mb-6 text-sm leading-relaxed text-foreground/80">
-              {plan.literatureQC.summary}
-            </p>
+            {plan.literatureQC.summary && (
+              <p className="mb-6 text-sm leading-relaxed text-foreground/80">
+                {plan.literatureQC.summary}
+              </p>
+            )}
 
             <div className="mb-3 font-mono text-xs uppercase tracking-wider text-muted-foreground">
               References ({plan.literatureQC.references.length})
@@ -124,21 +126,9 @@ export const ResultsDashboard = ({ plan, hypothesis, onReset }: ResultsDashboard
                     {idx + 1}
                   </span>
                   <div className="flex-1">
-                    <div className="mb-1 text-sm font-medium leading-snug text-foreground">
-                      {ref.title}
+                    <div className="text-sm font-medium leading-snug text-foreground">
+                      {ref}
                     </div>
-                    <div className="mb-1 text-xs text-muted-foreground">
-                      {ref.authors} · <span className="italic">{ref.journal}</span> · {ref.year}
-                    </div>
-                    <a
-                      href={`https://doi.org/${ref.doi}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1 font-mono text-xs text-primary transition-smooth hover:text-primary-glow"
-                    >
-                      {ref.doi}
-                      <ExternalLink className="h-3 w-3 opacity-0 transition-opacity group-hover:opacity-100" />
-                    </a>
                   </div>
                 </li>
               ))}
