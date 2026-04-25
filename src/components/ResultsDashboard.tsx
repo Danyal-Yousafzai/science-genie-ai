@@ -130,10 +130,8 @@ export const ResultsDashboard = ({ plan, hypothesis, onReset }: ResultsDashboard
 
       setSubmitted(true);
       toast({
-        title: "Expert review submitted",
-        description: `${payload.corrections.length} correction${
-          payload.corrections.length === 1 ? "" : "s"
-        } sent to the AI Scientist.`,
+        title: "Review submitted!",
+        description: "Thanks for helping the AI learn.",
       });
     } catch (error) {
       const message =
@@ -433,7 +431,7 @@ export const ResultsDashboard = ({ plan, hypothesis, onReset }: ResultsDashboard
           <Button
             size="lg"
             onClick={submitReview}
-            disabled={submitting || correctionCount === 0}
+            disabled={submitting}
             className="shrink-0"
           >
             {submitting ? (
