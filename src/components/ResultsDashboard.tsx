@@ -42,10 +42,11 @@ const noveltyConfig = {
 };
 
 export const ResultsDashboard = ({ plan, hypothesis, onReset }: ResultsDashboardProps) => {
-  const novelty = noveltyConfig[plan.literatureQC.noveltyStatus];
+  const novelty =
+    noveltyConfig[plan.literatureQC.noveltyStatus] ?? noveltyConfig["similar work exists"];
   const NoveltyIcon = novelty.icon;
 
-  const totalDays = plan.timeline.phases.reduce((sum, p) => sum + p.days, 0);
+  const timelineEntries = Object.entries(plan.timeline ?? {});
 
   return (
     <div className="container mx-auto animate-fade-in px-6 py-12 md:py-16">
