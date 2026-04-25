@@ -23,7 +23,13 @@ interface ResultsDashboardProps {
   onReset: () => void;
 }
 
-const noveltyConfig = {
+type NoveltyConfig = {
+  icon: React.ComponentType<{ className?: string }>;
+  label: string;
+  className: string;
+};
+
+const noveltyConfig: Record<string, NoveltyConfig> = {
   novel: {
     icon: Sparkles,
     label: "Novel",
@@ -41,9 +47,18 @@ const noveltyConfig = {
   },
 };
 
+const FALLBACK_NOVELTY: NoveltyConfig = {
+  icon: AlertTriangle,
+  label: "Unknown",
+  className: "bg-muted text-muted-foreground border-border",
+};
+
 export const ResultsDashboard = ({ plan, hypothesis, onReset }: ResultsDashboardProps) => {
-  const novelty =
-    noveltyConfig[plan.literatureQC.noveltyStatus] ?? noveltyConfig["similar work exists"];
+  const rawNovelty = (plan.literatureQC?.noveltyStatus ?? "").toString().toLowerCase().trim();
+  const novelty: NoveltyConfig = noveltyConfig[rawNovelty] ?? {
+    ...FALLBACK_NOVELTY,
+    label: plan.literatureQC?.noveltyStatus ? String(plan.literatureQC.noveltyStatus) : FALLBACK_NOVELTY.label,
+  };
   const NoveltyIcon = novelty.icon;
 
   const timelineEntries = Object.entries(plan.timeline ?? {});
