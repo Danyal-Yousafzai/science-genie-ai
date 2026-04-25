@@ -140,44 +140,20 @@ export const ResultsDashboard = ({ plan, hypothesis, onReset }: ResultsDashboard
         <Card className="overflow-hidden animate-scale-in [animation-delay:80ms] opacity-0">
           <SectionHeader icon={Wallet} title="Budget" subtitle="Estimated costs" />
           <div className="p-6">
-            <div className="mb-6 rounded-xl border border-primary/20 bg-gradient-hero/5 bg-gradient-to-br from-primary/5 to-accent/5 p-5">
+            <div className="rounded-xl border border-primary/20 bg-gradient-to-br from-primary/5 to-accent/5 p-5">
               <div className="font-mono text-xs uppercase tracking-wider text-muted-foreground">
                 Total Estimate
               </div>
               <div className="mt-1 flex items-baseline gap-2">
                 <span className="text-4xl font-semibold tracking-tight text-foreground">
-                  ${plan.budget.totalEstimate.toLocaleString()}
-                </span>
-                <span className="font-mono text-sm text-muted-foreground">
-                  {plan.budget.currency}
+                  {plan.budget.totalEstimate}
                 </span>
               </div>
+              <p className="mt-3 text-xs text-muted-foreground">
+                Aggregate estimate provided by the AI Scientist. Detailed breakdown not included in
+                this response.
+              </p>
             </div>
-
-            <div className="mb-3 font-mono text-xs uppercase tracking-wider text-muted-foreground">
-              Breakdown
-            </div>
-            <ul className="space-y-3">
-              {plan.budget.breakdown.map((item) => {
-                const pct = (item.amount / plan.budget.totalEstimate) * 100;
-                return (
-                  <li key={item.category}>
-                    <div className="mb-1.5 flex items-center justify-between text-sm">
-                      <span className="text-foreground/80">{item.category}</span>
-                      <span className="font-mono font-medium text-foreground">
-                        ${item.amount.toLocaleString()}
-                      </span>
-                    </div>
-                    <div className="h-1.5 overflow-hidden rounded-full bg-muted">
-                      <div
-                        className="h-full rounded-full bg-gradient-hero transition-all duration-700"
-                        style={{ width: `${pct}%` }}
-                      />
-                    </div>
-                  </li>
-                );
-              })}
-            </ul>
           </div>
         </Card>
       </div>
