@@ -229,41 +229,27 @@ export const ResultsDashboard = ({ plan, hypothesis, onReset }: ResultsDashboard
         <SectionHeader
           icon={Calendar}
           title="Timeline"
-          subtitle={`${plan.timeline.totalDuration} · ${totalDays} working days`}
+          subtitle={`${timelineEntries.length} ${
+            timelineEntries.length === 1 ? "phase" : "phases"
+          }`}
         />
         <div className="p-6">
           <div className="space-y-3">
-            {plan.timeline.phases.map((phase, idx) => {
-              const widthPct = Math.max(8, (phase.days / totalDays) * 100);
-              return (
-                <div
-                  key={idx}
-                  className="grid grid-cols-12 items-center gap-4 rounded-lg border border-border bg-muted/20 p-3 transition-smooth hover:border-primary/30"
-                >
-                  <div className="col-span-12 md:col-span-3">
-                    <div className="font-mono text-xs uppercase tracking-wider text-primary">
-                      {phase.week}
-                    </div>
-                  </div>
-                  <div className="col-span-12 md:col-span-6">
-                    <div className="text-sm text-foreground">{phase.activity}</div>
-                  </div>
-                  <div className="col-span-12 md:col-span-3">
-                    <div className="flex items-center gap-2">
-                      <div className="relative h-2 flex-1 overflow-hidden rounded-full bg-border">
-                        <div
-                          className="absolute inset-y-0 left-0 rounded-full bg-gradient-hero"
-                          style={{ width: `${widthPct}%` }}
-                        />
-                      </div>
-                      <span className="font-mono text-xs text-muted-foreground">
-                        {phase.days}d
-                      </span>
-                    </div>
+            {timelineEntries.map(([week, activity], idx) => (
+              <div
+                key={idx}
+                className="grid grid-cols-12 items-start gap-4 rounded-lg border border-border bg-muted/20 p-4 transition-smooth hover:border-primary/30"
+              >
+                <div className="col-span-12 md:col-span-3">
+                  <div className="font-mono text-xs uppercase tracking-wider text-primary">
+                    {week}
                   </div>
                 </div>
-              );
-            })}
+                <div className="col-span-12 md:col-span-9">
+                  <div className="text-sm leading-relaxed text-foreground/90">{activity}</div>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </Card>
