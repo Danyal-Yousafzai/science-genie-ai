@@ -1,7 +1,10 @@
+import { useState } from "react";
 import { ExperimentPlan } from "@/data/dummyResults";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { useToast } from "@/hooks/use-toast";
 import {
   BookOpen,
   ListChecks,
@@ -14,8 +17,15 @@ import {
   Sparkles,
   RotateCcw,
   Download,
+  Pencil,
+  Check,
+  X,
+  Send,
+  Loader2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+
+const REVIEW_URL = "http://127.0.0.1:8000/api/review";
 
 interface ResultsDashboardProps {
   plan: ExperimentPlan;
