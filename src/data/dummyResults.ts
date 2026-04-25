@@ -1,35 +1,23 @@
 export interface ExperimentPlan {
   literatureQC: {
     noveltyStatus: "novel" | "similar work exists" | "well-established";
-    summary: string;
-    references: {
-      title: string;
-      authors: string;
-      journal: string;
-      year: number;
-      doi: string;
-    }[];
+    summary?: string;
+    /** Plain-text reference strings from the backend. */
+    references: string[];
   };
-  protocol: {
-    step: number;
-    title: string;
-    description: string;
-    duration: string;
-  }[];
+  /** Plain-text protocol step strings, in order. */
+  protocol: string[];
   materials: {
     itemName: string;
     catalogNumber: string;
     supplier: string;
   }[];
   budget: {
-    totalEstimate: number;
-    currency: string;
-    breakdown: { category: string; amount: number }[];
+    /** Pre-formatted estimate string, e.g. "$10,000". */
+    totalEstimate: string;
   };
-  timeline: {
-    totalDuration: string;
-    phases: { week: string; activity: string; days: number }[];
-  };
+  /** Mapping of phase label → activity description, e.g. { "Week 1": "Day 1-7: ..." } */
+  timeline: Record<string, string>;
 }
 
 export const dummyExperimentPlan: ExperimentPlan = {
