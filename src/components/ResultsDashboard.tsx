@@ -64,6 +64,7 @@ const FALLBACK_NOVELTY: NoveltyConfig = {
 };
 
 export const ResultsDashboard = ({ plan, hypothesis, onReset }: ResultsDashboardProps) => {
+  const { toast } = useToast();
   const rawNovelty = (plan.literatureQC?.noveltyStatus ?? "").toString().toLowerCase().trim();
   const novelty: NoveltyConfig = noveltyConfig[rawNovelty] ?? {
     ...FALLBACK_NOVELTY,
@@ -72,6 +73,81 @@ export const ResultsDashboard = ({ plan, hypothesis, onReset }: ResultsDashboard
   const NoveltyIcon = novelty.icon;
 
   const timelineEntries = Object.entries(plan.timeline ?? {});
+
+  // Per-step scientist feedback state.
+  const [openEditor, setOpenEditor] = useState<Record<number, boolean>>({});
+  const [drafts, setDrafts] = useState<Record<number, string>>({});
+  const [corrections, setCorrections] = useState<Record<number, string>>({});
+  const [submitting, setSubmitting] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+
+  const correctionCount = Object.values(corrections).filter((v) => v.trim().length > 0).length;
+
+  const toggleEditor = (idx: number) => {
+    setOpenEditor((prev) => ({ ...prev, [idx]: !prev[idx] }));
+    setDrafts((prev) => ({ ...prev, [idx]: prev[idx] ?? corrections[idx] ?? "" }));
+  };
+
+  const saveCorrection = (idx: number) => {
+    const text = (drafts[idx] ?? "").trim();
+    setCorrections((prev) => {
+      const next = { ...prev };
+      if (text) next[idx] = text;
+      else delete next[idx];
+      return next;
+    });
+    setOpenEditor((prev) => ({ ...prev, [idx]: false }));
+  };
+
+  const cancelEditor = (idx: number) => {
+    setDrafts((prev) => ({ ...prev, [idx]: corrections[idx] ?? "" }));
+    setOpenEditor((prev) => ({ ...prev, [idx]: false }));
+  };
+
+  const submitReview = async () => {
+    setSubmitting(true);
+    try {
+      const payload = {
+        hypothesis,
+        corrections: Object.entries(corrections)
+          .filter(([, text]) => text.trim().length > 0)
+          .map(([idx, correction]) => ({
+            step_index: Number(idx),
+            original_step: plan.protocol[Number(idx)] ?? "",
+            scientist_correction: correction,
+          })),
+      };
+
+      const response = await fetch(REVIEW_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Backend responded with ${response.status} ${response.statusText}`);
+      }
+
+      setSubmitted(true);
+      toast({
+        title: "Expert review submitted",
+        description: `${payload.corrections.length} correction${
+          payload.corrections.length === 1 ? "" : "s"
+        } sent to the AI Scientist.`,
+      });
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : "Unknown error submitting review.";
+      console.error("Failed to submit review:", error);
+      toast({
+        variant: "destructive",
+        title: "Failed to submit review",
+        description: message,
+      });
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   return (
     <div className="container mx-auto animate-fade-in px-6 py-12 md:py-16">
