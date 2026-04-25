@@ -9,7 +9,7 @@ import { FlaskConical, AlertTriangle, RotateCcw } from "lucide-react";
 
 type AppState = "idle" | "loading" | "results" | "error";
 
-const API_URL = "http://127.0.0.1:8000/api/generate";
+const API_URL = "https://ai-scientist-backend.onrender.com/api/generate";
 
 const Index = () => {
   const [state, setState] = useState<AppState>("idle");
@@ -138,7 +138,7 @@ const Index = () => {
               </Button>
             </div>
             <p className="mt-6 font-mono text-[11px] uppercase tracking-wider text-muted-foreground">
-              Check that your backend is running at 127.0.0.1:8000
+              Check that the backend at ai-scientist-backend.onrender.com is reachable
             </p>
           </div>
         </section>

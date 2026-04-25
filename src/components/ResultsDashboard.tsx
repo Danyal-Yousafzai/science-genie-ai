@@ -25,7 +25,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-const REVIEW_URL = "http://127.0.0.1:8000/api/review";
+const REVIEW_URL = "https://ai-scientist-backend.onrender.com/api/review";
 
 interface ResultsDashboardProps {
   plan: ExperimentPlan;
