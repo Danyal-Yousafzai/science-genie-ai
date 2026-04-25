@@ -161,3 +161,60 @@
     background-size: 32px 32px;
   }
 }
+
+/* Print styles — clean, professional one-page lab report */
+@media print {
+  @page {
+    margin: 0.6in;
+  }
+
+  html,
+  body {
+    background: #ffffff !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  header,
+  footer,
+  nav,
+  .print\:hidden,
+  [data-sonner-toaster],
+  [role="status"] {
+    display: none !important;
+  }
+
+  main {
+    background: #ffffff !important;
+    background-image: none !important;
+  }
+
+  .shadow-card,
+  .shadow-elevated,
+  .shadow-glow,
+  .shadow-sm {
+    box-shadow: none !important;
+  }
+
+  .bg-gradient-hero,
+  .bg-gradient-subtle,
+  .bg-gradient-card,
+  .bg-gradient-glow {
+    background-image: none !important;
+  }
+
+  .rounded-xl,
+  .rounded-2xl,
+  table,
+  ol,
+  ul,
+  li,
+  tr {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  a {
+    text-decoration: none !important;
+  }
+}
