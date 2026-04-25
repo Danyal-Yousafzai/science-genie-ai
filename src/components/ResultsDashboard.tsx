@@ -80,12 +80,12 @@ export const ResultsDashboard = ({ plan, hypothesis, onReset }: ResultsDashboard
       <div className="mb-8 grid grid-cols-2 gap-3 md:grid-cols-4">
         <StatCard label="Steps" value={plan.protocol.length.toString()} icon={ListChecks} />
         <StatCard label="Materials" value={plan.materials.length.toString()} icon={FlaskConical} />
+        <StatCard label="Budget" value={plan.budget.totalEstimate} icon={Wallet} />
         <StatCard
-          label="Budget"
-          value={`$${plan.budget.totalEstimate.toLocaleString()}`}
-          icon={Wallet}
+          label="Duration"
+          value={`${timelineEntries.length} ${timelineEntries.length === 1 ? "phase" : "phases"}`}
+          icon={Calendar}
         />
-        <StatCard label="Duration" value={plan.timeline.totalDuration} icon={Calendar} />
       </div>
 
       {/* Top row: Literature QC + Budget */}
