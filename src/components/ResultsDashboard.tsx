@@ -163,12 +163,12 @@ export const ResultsDashboard = ({ plan, hypothesis, onReset }: ResultsDashboard
             "{hypothesis}"
           </blockquote>
         </div>
-        <div className="flex shrink-0 gap-2">
+        <div className="flex shrink-0 gap-2 print:hidden">
           <Button variant="outline" size="sm" onClick={onReset}>
             <RotateCcw className="h-4 w-4" />
             New hypothesis
           </Button>
-          <Button variant="default" size="sm">
+          <Button variant="default" size="sm" onClick={() => window.print()}>
             <Download className="h-4 w-4" />
             Export PDF
           </Button>
@@ -411,7 +411,7 @@ export const ResultsDashboard = ({ plan, hypothesis, onReset }: ResultsDashboard
       </Card>
 
       {/* Expert Review submission */}
-      <Card className="mt-10 overflow-hidden border-primary/20">
+      <Card className="mt-10 overflow-hidden border-primary/20 print:hidden">
         <div className="flex flex-col gap-4 p-6 md:flex-row md:items-center md:justify-between">
           <div>
             <div className="mb-1 font-mono text-xs uppercase tracking-wider text-primary">

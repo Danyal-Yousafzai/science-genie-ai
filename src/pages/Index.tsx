@@ -88,9 +88,9 @@ const Index = () => {
   };
 
   return (
-    <main className="min-h-screen bg-gradient-subtle">
+    <main className="min-h-screen bg-gradient-subtle flex flex-col">
       {/* Top nav */}
-      <header className="border-b border-border bg-background/70 backdrop-blur-md">
+      <header className="border-b border-border bg-background/70 backdrop-blur-md print:hidden">
         <div className="container mx-auto flex items-center justify-between px-6 py-4">
           <div className="flex items-center gap-2.5">
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-hero shadow-sm">
@@ -105,6 +105,8 @@ const Index = () => {
           </div>
         </div>
       </header>
+
+      <div className="flex-1">
 
       {state === "idle" && <HypothesisHero onSubmit={handleSubmit} isLoading={false} />}
       {state === "loading" && <LoadingState />}
@@ -141,6 +143,19 @@ const Index = () => {
           </div>
         </section>
       )}
+      </div>
+
+      <footer className="border-t border-border bg-background/40 py-5 text-center font-mono text-xs text-muted-foreground print:hidden">
+        powered by{" "}
+        <a
+          href="https://www.linkedin.com/in/danyal-khan-yousafzai"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="font-medium text-primary underline-offset-4 transition-smooth hover:underline"
+        >
+          Danyal
+        </a>
+      </footer>
     </main>
   );
 };
