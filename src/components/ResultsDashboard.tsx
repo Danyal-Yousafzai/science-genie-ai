@@ -163,12 +163,12 @@ export const ResultsDashboard = ({ plan, hypothesis, onReset }: ResultsDashboard
             "{hypothesis}"
           </blockquote>
         </div>
-        <div className="flex shrink-0 gap-2">
+        <div className="flex shrink-0 gap-2 print:hidden">
           <Button variant="outline" size="sm" onClick={onReset}>
             <RotateCcw className="h-4 w-4" />
             New hypothesis
           </Button>
-          <Button variant="default" size="sm">
+          <Button variant="default" size="sm" onClick={() => window.print()}>
             <Download className="h-4 w-4" />
             Export PDF
           </Button>
