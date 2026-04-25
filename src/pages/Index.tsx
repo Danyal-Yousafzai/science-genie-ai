@@ -143,6 +143,19 @@ const Index = () => {
           </div>
         </section>
       )}
+      </div>
+
+      <footer className="border-t border-border bg-background/40 py-5 text-center font-mono text-xs text-muted-foreground print:hidden">
+        powered by{" "}
+        <a
+          href="https://www.linkedin.com/in/danyal-khan-yousafzai"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="font-medium text-primary underline-offset-4 transition-smooth hover:underline"
+        >
+          Danyal
+        </a>
+      </footer>
     </main>
   );
 };
