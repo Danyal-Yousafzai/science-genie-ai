@@ -1,7 +1,10 @@
+import { useState } from "react";
 import { ExperimentPlan } from "@/data/dummyResults";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { useToast } from "@/hooks/use-toast";
 import {
   BookOpen,
   ListChecks,
@@ -14,8 +17,15 @@ import {
   Sparkles,
   RotateCcw,
   Download,
+  Pencil,
+  Check,
+  X,
+  Send,
+  Loader2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+
+const REVIEW_URL = "http://127.0.0.1:8000/api/review";
 
 interface ResultsDashboardProps {
   plan: ExperimentPlan;
@@ -54,6 +64,7 @@ const FALLBACK_NOVELTY: NoveltyConfig = {
 };
 
 export const ResultsDashboard = ({ plan, hypothesis, onReset }: ResultsDashboardProps) => {
+  const { toast } = useToast();
   const rawNovelty = (plan.literatureQC?.noveltyStatus ?? "").toString().toLowerCase().trim();
   const novelty: NoveltyConfig = noveltyConfig[rawNovelty] ?? {
     ...FALLBACK_NOVELTY,
@@ -62,6 +73,81 @@ export const ResultsDashboard = ({ plan, hypothesis, onReset }: ResultsDashboard
   const NoveltyIcon = novelty.icon;
 
   const timelineEntries = Object.entries(plan.timeline ?? {});
+
+  // Per-step scientist feedback state.
+  const [openEditor, setOpenEditor] = useState<Record<number, boolean>>({});
+  const [drafts, setDrafts] = useState<Record<number, string>>({});
+  const [corrections, setCorrections] = useState<Record<number, string>>({});
+  const [submitting, setSubmitting] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+
+  const correctionCount = Object.values(corrections).filter((v) => v.trim().length > 0).length;
+
+  const toggleEditor = (idx: number) => {
+    setOpenEditor((prev) => ({ ...prev, [idx]: !prev[idx] }));
+    setDrafts((prev) => ({ ...prev, [idx]: prev[idx] ?? corrections[idx] ?? "" }));
+  };
+
+  const saveCorrection = (idx: number) => {
+    const text = (drafts[idx] ?? "").trim();
+    setCorrections((prev) => {
+      const next = { ...prev };
+      if (text) next[idx] = text;
+      else delete next[idx];
+      return next;
+    });
+    setOpenEditor((prev) => ({ ...prev, [idx]: false }));
+  };
+
+  const cancelEditor = (idx: number) => {
+    setDrafts((prev) => ({ ...prev, [idx]: corrections[idx] ?? "" }));
+    setOpenEditor((prev) => ({ ...prev, [idx]: false }));
+  };
+
+  const submitReview = async () => {
+    setSubmitting(true);
+    try {
+      const payload = {
+        hypothesis,
+        corrections: Object.entries(corrections)
+          .filter(([, text]) => text.trim().length > 0)
+          .map(([idx, correction]) => ({
+            step_index: Number(idx),
+            original_step: plan.protocol[Number(idx)] ?? "",
+            scientist_correction: correction,
+          })),
+      };
+
+      const response = await fetch(REVIEW_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Backend responded with ${response.status} ${response.statusText}`);
+      }
+
+      setSubmitted(true);
+      toast({
+        title: "Expert review submitted",
+        description: `${payload.corrections.length} correction${
+          payload.corrections.length === 1 ? "" : "s"
+        } sent to the AI Scientist.`,
+      });
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : "Unknown error submitting review.";
+      console.error("Failed to submit review:", error);
+      toast({
+        variant: "destructive",
+        title: "Failed to submit review",
+        description: message,
+      });
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   return (
     <div className="container mx-auto animate-fade-in px-6 py-12 md:py-16">
@@ -185,16 +271,73 @@ export const ResultsDashboard = ({ plan, hypothesis, onReset }: ResultsDashboard
             {/* Vertical connector */}
             <div className="absolute left-[15px] top-2 bottom-2 w-px bg-border" aria-hidden />
 
-            {plan.protocol.map((step, idx) => (
-              <li key={idx} className="relative flex gap-4 pl-0">
-                <div className="relative z-10 flex h-8 w-8 shrink-0 items-center justify-center rounded-full border-2 border-primary bg-background font-mono text-sm font-semibold text-primary shadow-sm">
-                  {idx + 1}
-                </div>
-                <div className="flex-1 pb-1 pt-0.5">
-                  <p className="text-sm leading-relaxed text-foreground/90">{step}</p>
-                </div>
-              </li>
-            ))}
+            {plan.protocol.map((step, idx) => {
+              const isOpen = !!openEditor[idx];
+              const savedCorrection = corrections[idx];
+              return (
+                <li key={idx} className="relative flex gap-4 pl-0">
+                  <div className="relative z-10 flex h-8 w-8 shrink-0 items-center justify-center rounded-full border-2 border-primary bg-background font-mono text-sm font-semibold text-primary shadow-sm">
+                    {idx + 1}
+                  </div>
+                  <div className="flex-1 pb-1 pt-0.5">
+                    <div className="flex items-start justify-between gap-3">
+                      <p className="text-sm leading-relaxed text-foreground/90">{step}</p>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-7 w-7 shrink-0 text-muted-foreground hover:text-primary"
+                        onClick={() => toggleEditor(idx)}
+                        aria-label={isOpen ? "Close correction editor" : "Edit step"}
+                      >
+                        <Pencil className="h-3.5 w-3.5" />
+                      </Button>
+                    </div>
+
+                    {savedCorrection && !isOpen && (
+                      <div className="mt-2 rounded-md border border-primary/30 bg-primary/5 p-3">
+                        <div className="mb-1 font-mono text-[10px] uppercase tracking-wider text-primary">
+                          Scientist Correction
+                        </div>
+                        <p className="text-sm leading-relaxed text-foreground/90">
+                          {savedCorrection}
+                        </p>
+                      </div>
+                    )}
+
+                    {isOpen && (
+                      <div className="mt-3 rounded-md border border-border bg-muted/30 p-3 animate-fade-in">
+                        <label className="mb-2 block font-mono text-[10px] uppercase tracking-wider text-muted-foreground">
+                          Scientist Correction
+                        </label>
+                        <Textarea
+                          value={drafts[idx] ?? ""}
+                          onChange={(e) =>
+                            setDrafts((prev) => ({ ...prev, [idx]: e.target.value }))
+                          }
+                          placeholder="Suggest a refinement to this step…"
+                          className="min-h-[80px] bg-background"
+                          autoFocus
+                        />
+                        <div className="mt-2 flex justify-end gap-2">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => cancelEditor(idx)}
+                          >
+                            <X className="h-3.5 w-3.5" />
+                            Cancel
+                          </Button>
+                          <Button size="sm" onClick={() => saveCorrection(idx)}>
+                            <Check className="h-3.5 w-3.5" />
+                            Save
+                          </Button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </li>
+              );
+            })}
           </ol>
         </div>
       </Card>
@@ -266,6 +409,46 @@ export const ResultsDashboard = ({ plan, hypothesis, onReset }: ResultsDashboard
               </div>
             ))}
           </div>
+        </div>
+      </Card>
+
+      {/* Expert Review submission */}
+      <Card className="mt-10 overflow-hidden border-primary/20">
+        <div className="flex flex-col gap-4 p-6 md:flex-row md:items-center md:justify-between">
+          <div>
+            <div className="mb-1 font-mono text-xs uppercase tracking-wider text-primary">
+              Expert Review
+            </div>
+            <h3 className="text-base font-semibold text-foreground">
+              Send your corrections back to the AI Scientist
+            </h3>
+            <p className="mt-1 text-sm text-muted-foreground">
+              {correctionCount === 0
+                ? "Click the pencil icon next to any protocol step to add a correction."
+                : `${correctionCount} correction${
+                    correctionCount === 1 ? "" : "s"
+                  } ready to submit.`}
+            </p>
+          </div>
+          <Button
+            size="lg"
+            onClick={submitReview}
+            disabled={submitting || correctionCount === 0}
+            className="shrink-0"
+          >
+            {submitting ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : submitted ? (
+              <Check className="h-4 w-4" />
+            ) : (
+              <Send className="h-4 w-4" />
+            )}
+            {submitting
+              ? "Submitting…"
+              : submitted
+              ? "Review Submitted"
+              : "Submit Expert Review"}
+          </Button>
         </div>
       </Card>
 
