@@ -271,16 +271,73 @@ export const ResultsDashboard = ({ plan, hypothesis, onReset }: ResultsDashboard
             {/* Vertical connector */}
             <div className="absolute left-[15px] top-2 bottom-2 w-px bg-border" aria-hidden />
 
-            {plan.protocol.map((step, idx) => (
-              <li key={idx} className="relative flex gap-4 pl-0">
-                <div className="relative z-10 flex h-8 w-8 shrink-0 items-center justify-center rounded-full border-2 border-primary bg-background font-mono text-sm font-semibold text-primary shadow-sm">
-                  {idx + 1}
-                </div>
-                <div className="flex-1 pb-1 pt-0.5">
-                  <p className="text-sm leading-relaxed text-foreground/90">{step}</p>
-                </div>
-              </li>
-            ))}
+            {plan.protocol.map((step, idx) => {
+              const isOpen = !!openEditor[idx];
+              const savedCorrection = corrections[idx];
+              return (
+                <li key={idx} className="relative flex gap-4 pl-0">
+                  <div className="relative z-10 flex h-8 w-8 shrink-0 items-center justify-center rounded-full border-2 border-primary bg-background font-mono text-sm font-semibold text-primary shadow-sm">
+                    {idx + 1}
+                  </div>
+                  <div className="flex-1 pb-1 pt-0.5">
+                    <div className="flex items-start justify-between gap-3">
+                      <p className="text-sm leading-relaxed text-foreground/90">{step}</p>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-7 w-7 shrink-0 text-muted-foreground hover:text-primary"
+                        onClick={() => toggleEditor(idx)}
+                        aria-label={isOpen ? "Close correction editor" : "Edit step"}
+                      >
+                        <Pencil className="h-3.5 w-3.5" />
+                      </Button>
+                    </div>
+
+                    {savedCorrection && !isOpen && (
+                      <div className="mt-2 rounded-md border border-primary/30 bg-primary/5 p-3">
+                        <div className="mb-1 font-mono text-[10px] uppercase tracking-wider text-primary">
+                          Scientist Correction
+                        </div>
+                        <p className="text-sm leading-relaxed text-foreground/90">
+                          {savedCorrection}
+                        </p>
+                      </div>
+                    )}
+
+                    {isOpen && (
+                      <div className="mt-3 rounded-md border border-border bg-muted/30 p-3 animate-fade-in">
+                        <label className="mb-2 block font-mono text-[10px] uppercase tracking-wider text-muted-foreground">
+                          Scientist Correction
+                        </label>
+                        <Textarea
+                          value={drafts[idx] ?? ""}
+                          onChange={(e) =>
+                            setDrafts((prev) => ({ ...prev, [idx]: e.target.value }))
+                          }
+                          placeholder="Suggest a refinement to this step…"
+                          className="min-h-[80px] bg-background"
+                          autoFocus
+                        />
+                        <div className="mt-2 flex justify-end gap-2">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => cancelEditor(idx)}
+                          >
+                            <X className="h-3.5 w-3.5" />
+                            Cancel
+                          </Button>
+                          <Button size="sm" onClick={() => saveCorrection(idx)}>
+                            <Check className="h-3.5 w-3.5" />
+                            Save
+                          </Button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </li>
+              );
+            })}
           </ol>
         </div>
       </Card>
