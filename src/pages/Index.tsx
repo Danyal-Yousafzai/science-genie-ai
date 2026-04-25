@@ -41,11 +41,20 @@ const Index = () => {
       // Map backend payload (qc_check + experiment_plan) into the
       // ExperimentPlan shape the dashboard expects.
       const mapped: ExperimentPlan = {
-        literatureQC: data.qc_check,
-        protocol: data.experiment_plan.protocol,
-        materials: data.experiment_plan.materials,
-        budget: data.experiment_plan.budget,
-        timeline: data.experiment_plan.timeline,
+        literatureQC: {
+          noveltyStatus: data.qc_check?.novelty_signal ?? "similar work exists",
+          references: data.qc_check?.references ?? [],
+        },
+        protocol: data.experiment_plan?.protocol_steps ?? [],
+        materials: (data.experiment_plan?.materials ?? []).map((m: any) => ({
+          itemName: m.item_name ?? m.itemName ?? "",
+          catalogNumber: m.catalog_number ?? m.catalogNumber ?? "",
+          supplier: m.supplier ?? "",
+        })),
+        budget: {
+          totalEstimate: data.experiment_plan?.budget_estimate ?? "—",
+        },
+        timeline: data.experiment_plan?.timeline ?? {},
       };
 
       setPlan(mapped);
