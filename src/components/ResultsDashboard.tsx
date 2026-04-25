@@ -170,21 +170,13 @@ export const ResultsDashboard = ({ plan, hypothesis, onReset }: ResultsDashboard
             {/* Vertical connector */}
             <div className="absolute left-[15px] top-2 bottom-2 w-px bg-border" aria-hidden />
 
-            {plan.protocol.map((step) => (
-              <li key={step.step} className="relative flex gap-4 pl-0">
+            {plan.protocol.map((step, idx) => (
+              <li key={idx} className="relative flex gap-4 pl-0">
                 <div className="relative z-10 flex h-8 w-8 shrink-0 items-center justify-center rounded-full border-2 border-primary bg-background font-mono text-sm font-semibold text-primary shadow-sm">
-                  {step.step}
+                  {idx + 1}
                 </div>
                 <div className="flex-1 pb-1 pt-0.5">
-                  <div className="mb-1 flex flex-wrap items-baseline justify-between gap-2">
-                    <h4 className="text-base font-semibold text-foreground">{step.title}</h4>
-                    <span className="font-mono text-xs text-muted-foreground">
-                      ⏱ {step.duration}
-                    </span>
-                  </div>
-                  <p className="text-sm leading-relaxed text-muted-foreground">
-                    {step.description}
-                  </p>
+                  <p className="text-sm leading-relaxed text-foreground/90">{step}</p>
                 </div>
               </li>
             ))}
